@@ -1,0 +1,20 @@
+- The data model has four exposed types: Scene, Curve, Fill and Vertex
+- A Curve is a cubic bezier curve with two end points (Vertexes) and two control points
+- A Fill is defined by a list of of one or more closed loops of curves. If there are more than one, each closed loop after the first is a hole.
+- Multiple Curves may share a Vertex
+- The operations are:
+    1. Add a curve to the scene
+    2. Attempt to add a fill at a point (may fail if point is not fully enclosed) (updates the color of an existing fill if there is already a fill at that point)
+    3. Delete a curve (deletes any fills which reference it)
+    4. Delete a fill
+    5. Replace a curve with a new curve
+    6. Move a vertex to different coordinates
+- For operations 1, 5 and 6, the following rules apply in order:
+    1. CURVES MAY NOT SELF-INTERSECT. If a curve crosses itself, it is split at the intersection to form three curves (the segment before the intersection, the segment after the intersection, and the loop)
+    2. CURVES MAY NOT INTERSECT OTHER CURVES. If a curve crosses another curve, both curves are SPLIT at the intersection and a new Vertex is created there which is shared by the sub-curves.
+    3. SNAPPING. If two Vertexes are less than SNAP_DISTANCE apart then they are merged into a single Vertex which is shared by all affected curves.
+    4. FILLS. For any fills which referenced curves affected by the prior three rules, each of the replacements should be reflected in its list. If any loop now revisits a vertex, that section should get split off into a new loop (ie a hole). If any vertexes in the scene are now inside the fill and are not in its list of loops of curves, for each of those vertexes, determine all non-overlapping loops which it is part of and add them to the fill as holes.
+
+- This should be a simple library, under 1500 LOC. Don't overcomplicate it.
+- TESTING:
+Draw N curves, randomly. Perform operations randomly, but make all fills transparent. Then, using a canvas library, draw the curves (with no antialiasing) to the raster canvas. Attempt to add a visible fill at some point via the library, and in parallel perform a raster flood fill from the same point on the raster canvas. Re-render the scene and verify that it is pixel-identical to the raster canvas. If it isn't, simplify the scene until there is a minimal test case and then solve the problem. If it is, repeat. Success criteria is 10k successful tests in a row.
