@@ -63,6 +63,26 @@ pub struct CurveId(pub(crate) u32);
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FillId(pub(crate) u32);
 
+impl VertexId {
+    /// The raw slot index. uvec never reuses slots, so this is stable for the
+    /// life of a vertex — hosts use it to project ids into their own model.
+    pub fn index(self) -> u32 {
+        self.0
+    }
+}
+impl CurveId {
+    /// The raw slot index (stable; slots are never reused).
+    pub fn index(self) -> u32 {
+        self.0
+    }
+}
+impl FillId {
+    /// The raw slot index (stable; slots are never reused).
+    pub fn index(self) -> u32 {
+        self.0
+    }
+}
+
 /// Failure to add a fill.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum FillError {
