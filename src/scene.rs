@@ -5,11 +5,13 @@ use std::collections::{HashMap, VecDeque};
 use crate::geom::{self, dist, poly_intersections, poly_self_intersections, polygon_len, self_intersection, subsegment};
 use crate::{BadId, CurveId, Point, VertexId};
 
+#[derive(Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub(crate) struct Vertex {
     pub pos: Point,
 }
 
+#[derive(Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub(crate) struct CurveData {
     pub v0: VertexId,
@@ -23,6 +25,7 @@ pub(crate) struct CurveData {
     pub tag: u64,
 }
 
+#[derive(Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub(crate) struct FillData {
     /// Opaque caller payload (paint id / gradient id / packed color — uvec never
@@ -34,6 +37,7 @@ pub(crate) struct FillData {
 }
 
 /// A planar arrangement of cubic bezier curves with face fills.
+#[derive(Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Scene {
     pub(crate) verts: Vec<Option<Vertex>>,
@@ -114,6 +118,13 @@ impl Scene {
     pub fn curve_points(&self, id: CurveId) -> [Point; 4] {
         let c = self.curve(id);
         [self.vpos(c.v0), c.c0, c.c1, self.vpos(c.v1)]
+    }
+
+    /// The two endpoint vertices of a curve, `(start, end)` (curve param 0 and 1).
+    /// For hosts projecting the arrangement into their own edge/vertex model.
+    pub fn curve_endpoints(&self, id: CurveId) -> (VertexId, VertexId) {
+        let c = self.curve(id);
+        (c.v0, c.v1)
     }
 
     /// The curve's rendered polyline: flattened at the scene tolerance, with

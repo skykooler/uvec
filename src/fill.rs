@@ -64,6 +64,14 @@ impl Scene {
         self.fill_polys(&f.loops)
     }
 
+    /// The fill's boundary as ordered, directed half-edges: outer loop first,
+    /// then hole loops. Each entry is `(curve, forward)` where `forward` is the
+    /// traversal direction along the curve. For hosts projecting the boundary
+    /// into their own directed-edge model.
+    pub fn fill_loops(&self, id: FillId) -> Vec<Vec<(crate::CurveId, bool)>> {
+        self.fills[id.0 as usize].as_ref().expect("dead fill id").loops.clone()
+    }
+
     pub(crate) fn fill_polys(&self, loops: &[Vec<(crate::CurveId, bool)>]) -> Vec<Vec<Point>> {
         loops.iter().map(|lp| self.loop_polyline(lp)).collect()
     }

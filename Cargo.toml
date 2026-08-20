@@ -3,6 +3,10 @@ name = "uvec"
 version = "0.1.0"
 edition = "2021"
 
+# Own workspace root so a checkout nested inside another repo (e.g. vendored as a
+# submodule) isn't captured by that repo's workspace. Harmless standalone.
+[workspace]
+
 [dependencies]
 serde = { version = "1", features = ["derive"], optional = true }
 
